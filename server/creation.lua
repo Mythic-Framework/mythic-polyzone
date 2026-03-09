@@ -1,3 +1,9 @@
+Config = {
+    PrintToConsole = true, -- print zone output on server console.
+    SaveToFile = true, -- save zone to output file.
+}
+
+
 AddEventHandler('Polyzone:Shared:DependencyUpdate', RetrieveComponents)
 function RetrieveComponents()
     Logger = exports['mythic-base']:FetchComponent('Logger')
@@ -75,11 +81,8 @@ AddEventHandler("polyzone:printPoly", function(zone)
     local player = Fetch:Source(src)
     if not player.Permissions:IsAdmin() then return end
 
-    file = io.open('polyzone_created_zones.txt', "a")
-    io.output(file)
     local output = parsePoly(zone)
-    io.write(output)
-    io.close(file)
+    OutputZone(output)
 end)
 
 RegisterNetEvent("polyzone:printCircle")
@@ -88,11 +91,9 @@ AddEventHandler("polyzone:printCircle", function(zone)
     local player = Fetch:Source(src)
     if not player.Permissions:IsAdmin() then return end
 
-    file = io.open('polyzone_created_zones.txt', "a")
-    io.output(file)
+
     local output = parseCircle(zone)
-    io.write(output)
-    io.close(file)
+    OutputZone(output)
 end)
 
 RegisterNetEvent("polyzone:printBox")
@@ -101,11 +102,8 @@ AddEventHandler("polyzone:printBox", function(zone)
     local player = Fetch:Source(src)
     if not player.Permissions:IsAdmin() then return end
 
-    file = io.open('polyzone_created_zones.txt', "a")
-    io.output(file)
     local output = parseBox(zone)
-    io.write(output)
-    io.close(file)
+    OutputZone(output)
 end)
 
 function round(num, numDecimalPlaces)
@@ -156,4 +154,24 @@ function parseBox(zone)
     end
     printout = printout .. "\n})\n\n"
     return printout
+end
+
+function OutputZone(output)
+    if Config.PrintToConsole then
+        Logger:Info('PolyZone', output)
+    end
+    
+    if Config.SaveToFile then
+        local fileName = 'polyzone_created_zones.txt'
+        local resource = GetCurrentResourceName()
+        local existing = LoadResourceFile(resource, fileName)
+
+        if existing == nil then 
+            Logger:Warn('PolyZone', "File not found, creating new one.")
+            existing= ''
+        end
+
+        SaveResourceFile(resource, fileName, existing .. output, -1)
+        Logger:Info('PolyZone', 'Zone saved to ' .. fileName)
+    end
 end
