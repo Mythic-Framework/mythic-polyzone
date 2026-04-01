@@ -10,6 +10,7 @@ function RetrieveComponents()
     Utils = exports['mythic-base']:FetchComponent('Utils')
     Chat = exports['mythic-base']:FetchComponent('Chat')
     Fetch = exports['mythic-base']:FetchComponent('Fetch')
+    Version = exports['mythic-base']:FetchComponent('Version')
 end
 
 AddEventHandler('Core:Shared:Ready', function()
@@ -17,10 +18,13 @@ AddEventHandler('Core:Shared:Ready', function()
         'Logger',
         'Utils',
         'Chat',
-        'Fetch'
+        'Fetch',
+        'Version'
     }, function(error)
         if #error > 0 then return end -- Do something to handle if not all dependencies loaded
         RetrieveComponents()
+
+        Version:Check('Mythic-Framework/Mythic-VersionCheckers', GetCurrentResourceName())
 
         Chat:RegisterAdminCommand('pzcreate', function(src, args, raw)
             TriggerClientEvent('polyzone:createcommand', src, args)
